@@ -1,5 +1,7 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module SumRecordsJson where
 
@@ -7,6 +9,10 @@ import ClassyPrelude
 import Data.Aeson
 import Data.Aeson.Types (Options(..))
 import Cases
+
+-- for manually working encode
+import qualified Data.Text.Lazy.IO as T
+import qualified Data.Text.Lazy.Encoding as T
 
 genericDropOptions :: String -> Options
 genericDropOptions word =
@@ -25,12 +31,30 @@ data GradeAlone
     }
   deriving Generic
 
+instance FromJSON GradeAlone where
+  parseJSON = genericParseJSON $ genericDropOptions "_gradeAlone"
+
+instance ToJSON GradeAlone where
+  toJSON GradeAlone{..} =
+    object [ "grade" .= _gradeAloneGrade ]
+
+
 data GradeDomain
   = GradeDomain
     { _gradeDomainGrade :: Grade
     , _gradeDomainDomain :: Domain
     }
   deriving Generic
+
+instance FromJSON GradeDomain where
+  parseJSON = genericParseJSON $ genericDropOptions "_gradeDomain"
+
+instance ToJSON GradeDomain where
+  toJSON GradeDomain{..} =
+    object [
+        "grade" .= _gradeDomainGrade
+      , "domain" .= _gradeDomainDomain ]
+
 
 data GradeDomainStandard
   = GradeDomainStandard
@@ -40,20 +64,22 @@ data GradeDomainStandard
     }
   deriving Generic
 
+instance FromJSON GradeDomainStandard where
+  parseJSON = genericParseJSON $ genericDropOptions "_gradeDomainStanard"
+
+instance ToJSON GradeDomainStandard where
+  toJSON GradeDomainStandard{..} =
+    object [
+        "grade" .= _gradeDomainStandardGrade
+      , "domain" .= _gradeDomainStandardDomain
+      , "standard" .= _gradeDomainStandardStandard ]
+
+
 data SumRecordsJson
   = GA GradeAlone
   | GD GradeDomain
   | GS GradeDomainStandard
   deriving Generic
-
-instance FromJSON GradeAlone where
-  parseJSON = genericParseJSON $ genericDropOptions "_gradeAlone"
-
-instance FromJSON GradeDomain where
-  parseJSON = genericParseJSON $ genericDropOptions "_gradeDomain"
-
-instance FromJSON GradeDomainStandard where
-  parseJSON = genericParseJSON $ genericDropOptions "_gradeDomainStanard"
 
 instance FromJSON SumRecordsJson where
   parseJSON = genericParseJSON  defaultOptions
