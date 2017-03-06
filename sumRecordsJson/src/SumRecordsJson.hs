@@ -9,8 +9,9 @@ import ClassyPrelude
 import Data.Aeson
 import Data.Aeson.Types (Options(..))
 import Cases
+import Data.Foldable (asum)
 
--- for manually working encode
+-- for encode at the repl
 import qualified Data.Text.Lazy.IO as T
 import qualified Data.Text.Lazy.Encoding as T
 
@@ -82,4 +83,11 @@ data SumRecordsJson
   deriving Generic
 
 instance FromJSON SumRecordsJson where
-  parseJSON = genericParseJSON  defaultOptions
+  parseJSON = withObject "MathAssessment metadata" $ \o ->
+    -- must be ordered from most specific to least specific parsers
+    GS <$> parseJSON (Object o)
+    <|> GD <$> parseJSON (Object o)
+    <|> GA <$> parseJSON (Object o)
+    -- <?> fail "could not parse"
+
+instance ToJSON SumRecordsJson
