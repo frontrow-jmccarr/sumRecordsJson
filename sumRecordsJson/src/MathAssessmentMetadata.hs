@@ -26,50 +26,50 @@ type Grade = Integer
 type Domain = String
 type Standard = String
 
-data GradeAlone
-  = GradeAlone
+data GradeAloneFields
+  = GradeAloneFields
     { _gradeAloneGrade :: Grade
     }
   deriving (Eq, Show, Generic)
 
-instance FromJSON GradeAlone where
+instance FromJSON GradeAloneFields where
   parseJSON = genericParseJSON $ genericDropOptions "_gradeAlone"
 
-instance ToJSON GradeAlone where
-  toJSON GradeAlone{..} =
+instance ToJSON GradeAloneFields where
+  toJSON GradeAloneFields{..} =
     object [ "grade" .= _gradeAloneGrade ]
 
 
-data GradeDomain
-  = GradeDomain
+data GradeDomainFields
+  = GradeDomainFields
     { _gradeDomainGrade :: Grade
     , _gradeDomainDomain :: Domain
     }
   deriving (Eq, Show, Generic)
 
-instance FromJSON GradeDomain where
+instance FromJSON GradeDomainFields where
   parseJSON = genericParseJSON $ genericDropOptions "_gradeDomain"
 
-instance ToJSON GradeDomain where
-  toJSON GradeDomain{..} =
+instance ToJSON GradeDomainFields where
+  toJSON GradeDomainFields{..} =
     object [
         "grade" .= _gradeDomainGrade
       , "domain" .= _gradeDomainDomain ]
 
 
-data GradeDomainStandard
-  = GradeDomainStandard
+data GradeDomainStandardFields
+  = GradeDomainStandardFields
     { _gradeDomainStandardGrade :: Grade
     , _gradeDomainStandardDomain :: Domain
     , _gradeDomainStandardStandard :: Standard
     }
   deriving (Eq, Show, Generic)
 
-instance FromJSON GradeDomainStandard where
+instance FromJSON GradeDomainStandardFields where
   parseJSON = genericParseJSON $ genericDropOptions "_gradeDomainStandard"
 
-instance ToJSON GradeDomainStandard where
-  toJSON GradeDomainStandard{..} =
+instance ToJSON GradeDomainStandardFields where
+  toJSON GradeDomainStandardFields{..} =
     object [
         "grade" .= _gradeDomainStandardGrade
       , "domain" .= _gradeDomainStandardDomain
@@ -77,21 +77,21 @@ instance ToJSON GradeDomainStandard where
 
 
 data MathAssessmentMetadata
-  = GA GradeAlone
-  | GD GradeDomain
-  | GS GradeDomainStandard
+  = MAMGrade GradeAloneFields
+  | MAMGradeDomain GradeDomainFields
+  | MAMGradeDomainStandard GradeDomainStandardFields
   deriving (Eq, Show, Generic)
 
 instance FromJSON MathAssessmentMetadata where
   parseJSON = withObject "MathAssessment metadata" $ \o ->
     -- must be ordered from most specific to least specific parsers
-    GS <$> parseJSON (Object o)
-    <|> GD <$> parseJSON (Object o)
-    <|> GA <$> parseJSON (Object o)
+    MAMGradeDomainStandard <$> parseJSON (Object o)
+    <|> MAMGradeDomain <$> parseJSON (Object o)
+    <|> MAMGrade <$> parseJSON (Object o)
     -- <?> fail "could not parse"
 
 instance ToJSON MathAssessmentMetadata where
   toJSON g = case g of
-    GA gradeAlone -> toJSON gradeAlone
-    GD gradeDomain -> toJSON gradeDomain
-    GS gradeDomainStandard -> toJSON gradeDomainStandard
+    MAMGrade gradeAlone -> toJSON gradeAlone
+    MAMGradeDomain gradeDomain -> toJSON gradeDomain
+    MAMGradeDomainStandard gradeDomainStandard -> toJSON gradeDomainStandard
