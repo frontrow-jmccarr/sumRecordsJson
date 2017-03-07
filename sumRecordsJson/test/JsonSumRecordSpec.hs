@@ -8,7 +8,7 @@ import Test.QuickCheck
 
 import Data.Aeson
 import Data.Aeson.QQ
-import SumRecordsJson
+import MathAssessmentMetadata
 
 main :: IO ()
 main = hspec spec

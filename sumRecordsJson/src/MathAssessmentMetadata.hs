@@ -3,7 +3,7 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module SumRecordsJson where
+module MathAssessmentMetadata where
 
 import ClassyPrelude
 import Data.Aeson
@@ -76,13 +76,13 @@ instance ToJSON GradeDomainStandard where
       , "standard" .= _gradeDomainStandardStandard ]
 
 
-data SumRecordsJson
+data MathAssessmentMetadata
   = GA GradeAlone
   | GD GradeDomain
   | GS GradeDomainStandard
   deriving (Eq, Show, Generic)
 
-instance FromJSON SumRecordsJson where
+instance FromJSON MathAssessmentMetadata where
   parseJSON = withObject "MathAssessment metadata" $ \o ->
     -- must be ordered from most specific to least specific parsers
     GS <$> parseJSON (Object o)
@@ -90,7 +90,7 @@ instance FromJSON SumRecordsJson where
     <|> GA <$> parseJSON (Object o)
     -- <?> fail "could not parse"
 
-instance ToJSON SumRecordsJson where
+instance ToJSON MathAssessmentMetadata where
   toJSON g = case g of
     GA gradeAlone -> toJSON gradeAlone
     GD gradeDomain -> toJSON gradeDomain
