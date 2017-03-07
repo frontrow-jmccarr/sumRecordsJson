@@ -30,7 +30,7 @@ data GradeAlone
   = GradeAlone
     { _gradeAloneGrade :: Grade
     }
-  deriving Generic
+  deriving (Eq, Show, Generic)
 
 instance FromJSON GradeAlone where
   parseJSON = genericParseJSON $ genericDropOptions "_gradeAlone"
@@ -45,7 +45,7 @@ data GradeDomain
     { _gradeDomainGrade :: Grade
     , _gradeDomainDomain :: Domain
     }
-  deriving Generic
+  deriving (Eq, Show, Generic)
 
 instance FromJSON GradeDomain where
   parseJSON = genericParseJSON $ genericDropOptions "_gradeDomain"
@@ -63,10 +63,10 @@ data GradeDomainStandard
     , _gradeDomainStandardDomain :: Domain
     , _gradeDomainStandardStandard :: Standard
     }
-  deriving Generic
+  deriving (Eq, Show, Generic)
 
 instance FromJSON GradeDomainStandard where
-  parseJSON = genericParseJSON $ genericDropOptions "_gradeDomainStanard"
+  parseJSON = genericParseJSON $ genericDropOptions "_gradeDomainStandard"
 
 instance ToJSON GradeDomainStandard where
   toJSON GradeDomainStandard{..} =
@@ -80,7 +80,7 @@ data SumRecordsJson
   = GA GradeAlone
   | GD GradeDomain
   | GS GradeDomainStandard
-  deriving Generic
+  deriving (Eq, Show, Generic)
 
 instance FromJSON SumRecordsJson where
   parseJSON = withObject "MathAssessment metadata" $ \o ->
@@ -90,4 +90,8 @@ instance FromJSON SumRecordsJson where
     <|> GA <$> parseJSON (Object o)
     -- <?> fail "could not parse"
 
-instance ToJSON SumRecordsJson
+instance ToJSON SumRecordsJson where
+  toJSON g = case g of
+    GA gradeAlone -> toJSON gradeAlone
+    GD gradeDomain -> toJSON gradeDomain
+    GS gradeDomainStandard -> toJSON gradeDomainStandard
